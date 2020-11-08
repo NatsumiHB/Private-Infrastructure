@@ -1,0 +1,17 @@
+version: "3"
+
+services:
+    server:
+        image: nginx
+        restart: always
+        ports:
+            - 80:80
+        volumes:
+            - ./config:/etc/nginx
+            - ../nextcloud/data:/var/www/nextcloud
+        networks:
+            -  nginx-net
+
+networks:
+    nginx-net:
+        external: true

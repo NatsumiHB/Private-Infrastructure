@@ -1,0 +1,43 @@
+version: "3"
+
+services: 
+  server:
+    image: szurubooru/server:latest
+    depends_on: 
+      - db
+    environment: 
+      POSTGRES_HOST: db
+    env_file: 
+      - ./.env
+    volumes: 
+      - ./data:/data
+      - ./config.yml:/opt/app/config.yml
+    networks:
+      - booru-net
+  
+  client:
+    image: szurubooru/client:latest
+    depends_on: 
+      - server
+    environment: 
+      BACKEND_HOST: booru_server_1
+      BASE_URL: http://booru.natsu.infra
+    volumes: 
+      - ./data:/data
+    networks: 
+      - nginx-net
+      - booru-net
+  
+  db:
+    image: postgres:11-alpine
+    restart: unless-stopped
+    env_file: 
+      - ./.env
+    networks:
+      - booru-net
+  
+networks: 
+  nginx-net:
+    external: true
+  booru-net:
+    internal: true

@@ -1,0 +1,14 @@
+version: "3"
+
+services: 
+  server:
+    image: registry:latest
+    restart: always
+    volumes: 
+      - ./data:/var/lib/registry
+    networks: 
+      - nginx-net
+
+networks: 
+  nginx-net:
+    external: true
