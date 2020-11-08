@@ -6,7 +6,7 @@ name: szurubooru
 # full url to the homepage of this szurubooru site, with no trailing slash
 domain: http://booru.natsu.infra # example: http://example.com
 # used to salt the users' password hashes and generate filenames for static content
-secret: change
+secret: bigbananasandwich
 
 # Delete thumbnails and source files on post delete
 # Original functionality is no, to mitigate the impacts of admins going
