@@ -1,0 +1,40 @@
+version: "3"
+
+services:
+  app:
+    image: gitlab/gitlab-ce:latest
+    restart: always
+    hostname: "gitlab.natsu.infra"
+    environment:
+      GITLAB_OMNIBUS_CONFIG: |
+        external_url 'http://gitlab.natsu.infra'
+        nginx['listen_port'] = 5555
+        nginx['listen_https'] = false
+        nginx['hsts_max_age'] = 0
+
+        gitlab_rails['gitlab_shell_ssh_port'] = 2224
+    volumes:
+      - ./data/gitlab/config:/etc/gitlab
+      - ./data/gitlab/logs:/var/log/gitlab
+      - ./data/gitlab/data:/var/opt/gitlab
+      - ./data/gitlab/backups:/secret/gitlab/backups
+    ports:
+      - "2224:22"
+    networks:
+      - nginx-net
+      - gitlab-net
+  
+  runner:
+    image: gitlab/gitlab-runner:latest
+    restart: always
+    volumes: 
+      - ./data/runner-config:/etc/gitab-runner
+      - //var/run/docker-sock:/var/run/docker.sock
+    networks: 
+     - gitlab-net
+
+networks:
+  nginx-net:
+    external: true
+  gitlab-net:
+    internal: true
