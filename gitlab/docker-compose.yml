@@ -7,7 +7,7 @@ services:
     hostname: "gitlab.natsu.infra"
     environment:
       GITLAB_OMNIBUS_CONFIG: |
-        external_url 'http://gitlab.in-natsus-infra.club'
+        external_url 'https://gitlab.in-natsus-infra.club'
         nginx['listen_port'] = 5555
         nginx['listen_https'] = false
         nginx['hsts_max_age'] = 0
