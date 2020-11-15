@@ -1,6 +1,6 @@
 $update_script = <<-SHELL
   sudo apt-get update
-  sudo apt-get dist-upgrade -y
+  sudo apt-get upgrade -y
   sudo apt-get autoremove -y
 SHELL
 
@@ -26,7 +26,7 @@ Vagrant.configure("2") do |config|
   config.vm.provision "shell" do |shell|
     shell.privileged        = true
     shell.inline            = $update_script
-    shell.reboot            = true
+    #shell.reboot            = true
   end
 
   config.vm.define "worker" do |machine|
@@ -68,7 +68,7 @@ Vagrant.configure("2") do |config|
       ssh-keygen -t rsa -f ~/.ssh/id_rsa -q -P ""
       eval $(ssh-agent -s)
       ssh-add ~/.ssh/id_rsa
-      sshpass -p "vagrant" ssh-copy-id -f -i ~/.ssh/id_rsa.pub worker-vm
+      sshpass -p "vagrant" ssh-copy-id -f -i ~/.ssh/id_rsa.pub -o StrictHostKeyChecking=no worker-vm
     SHELL
 
     machine.vm.provision "shell",
