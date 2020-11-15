@@ -1,0 +1,86 @@
+---
+
+- hosts: all
+  become: true
+  pre_tasks:
+    - name: Update and upgrade packages
+      apt:
+        upgrade: dist
+        update_cache: true
+      when: ansible_distribution == "Ubuntu"
+
+    - name: Remove previous Docker installs
+      apt:
+        name:
+          - docker
+          - docker-engine
+          - docker.io
+          - containerd
+          - runc
+        state: absent
+      when: ansible_distribution == "Ubuntu"
+
+    - name: Install dependencies for Docker and docker-compose
+      apt:
+        name:
+          - apt-transport-https
+          - ca-certificates
+          - curl
+          - gnupg-agent
+          - software-properties-common
+          - python3-pip
+        state: latest
+      when: ansible_distribution == "Ubuntu"
+    
+    - name: Add Docker GPG key
+      apt_key:
+        url: https://download.docker.com/linux/ubuntu/gpg
+        state: present
+      when: ansible_distribution == "Ubuntu"
+
+    - name: Add Docker repository
+      apt_repository:
+        repo: deb [arch=amd64] https://download.docker.com/linux/ubuntu {{ansible_distribution_release}} stable
+      when: ansible_distribution == "Ubuntu"
+
+    - name: Install Docker
+      apt:
+        name:
+          - docker-ce
+          - docker-ce-cli
+          - containerd.io
+        update_cache: true
+      when: ansible_distribution == "Ubuntu"
+
+    - name: Check if docker-compose already exists
+      command: docker-compose --version
+      register: dc_exists
+
+    - name: Install docker-compose
+      pip:
+        name: docker-compose
+      when: ansible_distribution == "Ubuntu" and dc_exists.rc != 0
+    
+  tasks:
+    - name: Clone repo into /srv/
+      git:
+        repo: https://github.com/NatsumiHB/Private-Infrastructure.git
+        dest: /srv/infra
+      
+    - name: Create nginx network
+      shell: docker network create nginx-net || true
+    
+    - name: Start GitLab
+      shell: cd /srv/infra/gitlab && docker-compose up -d
+    
+    - name: Start Docker registry
+      shell: cd /srv/infra/docker-registry && docker-compose up -d
+    
+    - name: Copy TLS certificates
+      copy:
+        src: "{{ playbook_dir }}/nginx/config/certs"
+        dest: /srv/infra/nginx/config
+        mode: 0600
+    
+    - name: Start nginx
+      shell: cd /srv/infra/nginx && docker-compose up -d
