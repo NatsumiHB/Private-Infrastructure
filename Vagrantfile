@@ -26,7 +26,7 @@ Vagrant.configure("2") do |config|
   config.vm.provision "shell" do |shell|
     shell.privileged        = true
     shell.inline            = $update_script
-    #shell.reboot            = true
+    shell.reboot            = true
   end
 
   config.vm.define "worker" do |machine|

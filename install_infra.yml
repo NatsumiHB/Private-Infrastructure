@@ -9,7 +9,7 @@
         update_cache: true
       when: ansible_distribution == "Ubuntu"
 
-    - name: Remove previous Docker installs
+    - name: Remove deprecated Docker installs
       apt:
         name:
           - docker
@@ -57,6 +57,7 @@
         cmd: docker-compose --version
       register: dc_exists
       ignore_errors: true
+      when: ansible_distribution == "Ubuntu"
 
     - name: Install docker-compose
       pip:
