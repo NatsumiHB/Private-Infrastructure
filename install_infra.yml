@@ -3,15 +3,10 @@
 - hosts: all
   become: true
   pre_tasks:
-    - name: Install aptitude
-      apt:
-        name: aptitude
-        update_cache: true
-      when: ansible_distribution == "Ubuntu"
-
     - name: Upgrade packages
       apt:
-        upgrade: yes
+        upgrade: dist
+        update_cache: true
       when: ansible_distribution == "Ubuntu"
 
     - name: Remove previous Docker installs
@@ -57,10 +52,16 @@
         update_cache: true
       when: ansible_distribution == "Ubuntu"
 
+    - name: Check if docker-compose is already installed
+      command:
+        cmd: docker-compose --version
+      register: dc_exists
+      ignore_errors: true
+
     - name: Install docker-compose
       pip:
         name: docker-compose
-      when: ansible_distribution == "Ubuntu"
+      when: ansible_distribution == "Ubuntu" and dc_exists.rc != 0
     
   tasks:
     - name: Clone repo into /srv/
