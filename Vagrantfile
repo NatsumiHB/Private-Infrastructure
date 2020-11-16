@@ -5,7 +5,7 @@ $update_script = <<-SHELL
 SHELL
 
 Vagrant.configure("2") do |config|
-  config.vm.box               = "bento/ubuntu-20.04"
+  config.vm.box               = "natsuwumi/ubuntu-20.04"
 
   config.vm.provider            "hyperv"
   config.vm.network             "public_network"
