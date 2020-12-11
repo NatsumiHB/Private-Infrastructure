@@ -63,7 +63,14 @@
     - name: Install docker-compose
       pip:
         name: docker-compose
+        state: latest
       when: ansible_distribution == "Ubuntu" and dc_exists.rc != 0
+    
+    - name: Install Docker SDK
+      pip:
+        name: docker
+        state: latest
+      when: ansible_distribution == "Ubuntu"
     
   tasks:
     - name: Clone repo into /srv/
@@ -72,13 +79,19 @@
         dest: /srv/infra
       
     - name: Create nginx network
-      shell: docker network create nginx-net || true
+      docker_network:
+        name: nginx-net
+        state: present
     
     - name: Start GitLab
-      shell: cd /srv/infra/gitlab && docker-compose up -d
+      docker_compose:
+        project_src: /srv/infra/gitlab
+        state: present
     
     - name: Start Docker registry
-      shell: cd /srv/infra/docker-registry && docker-compose up -d
+      docker_compose:
+          project_src: /srv/infra/docker-registry
+          state: present
     
     - name: Copy TLS certificates
       copy:
@@ -87,4 +100,6 @@
         mode: 0600
     
     - name: Start nginx
-      shell: cd /srv/infra/nginx && docker-compose up -d
+      docker_compose:
+        project_src: /srv/infra/nginx
+        state: present
