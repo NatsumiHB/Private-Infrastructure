@@ -8,6 +8,9 @@
         update_cache: true
       when: ansible_distribution == "Ubuntu"
 
+    - name: Reboot
+      reboot:
+
     - name: Remove deprecated Docker installs
       apt:
         name:

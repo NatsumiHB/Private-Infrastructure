@@ -10,11 +10,7 @@ Vagrant.configure("2") do |config|
     hyperv.cpus               = 4
   end
 
-  # Disable shared folders (Since we copy ansible files manually later)
   config.vm.synced_folder ".", "/vagrant", disabled: false
-
-  # Disable Vagrant inserting a key automatically
-  config.ssh.insert_key = false
 
   config.vm.define "private-infra", primary: true do |machine|
     machine.vm.hostname       = "private-infra-vm"
