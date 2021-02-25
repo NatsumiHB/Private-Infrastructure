@@ -8,8 +8,8 @@
         update_cache: true
       when: ansible_distribution == "Ubuntu"
 
-    - name: Reboot
-      reboot:
+    # - name: Reboot
+    #   reboot:
 
     - name: Remove deprecated Docker installs
       apt:
@@ -46,6 +46,13 @@
         state: present
       when: ansible_distribution == "Ubuntu"
 
+    - name: Check if docker-compose is already installed
+      command:
+        cmd: docker --version
+      register: d_exists
+      ignore_errors: true
+      when: ansible_distribution == "Ubuntu"
+
     - name: Install Docker
       apt:
         name:
@@ -54,7 +61,7 @@
           - containerd.io
         update_cache: true
         state: latest
-      when: ansible_distribution == "Ubuntu"
+      when: ansible_distribution == "Ubuntu" and d_exists.rc != 0
 
     - name: Check if docker-compose is already installed
       command:
@@ -76,10 +83,45 @@
       when: ansible_distribution == "Ubuntu"
     
   tasks:
-    - name: Clone repo into /srv/
-      git:
-        repo: https://github.com/NatsumiHB/Private-Infrastructure.git
+    - name: Stop systemd-resolved
+      systemd:
+        name: systemd-resolved
+        state: stopped
+      when: ansible_distribution == "Ubuntu"
+    
+    - name: Disable systemd-resolved listening on 53/udp (config)
+      copy:
+        src: "{{ playbook_dir }}/resolved.conf"
+        dest: /etc/systemd/resolved.conf
+        mode: 0600
+      when: ansible_distribution == "Ubuntu"
+    
+    - name: Create new symlink for resolved config
+      file:
+        src: /run/systemd/resolve/resolv.conf
+        dest: /etc/resolv.conf
+        state: link
+      when: ansible_distribution == "Ubuntu"
+
+    - name: Start systemd-resolved
+      systemd:
+        name: systemd-resolved
+        state: started
+      when: ansible_distribution == "Ubuntu"
+    
+    - name: Allow port 53 and 443 (TCP)
+      command: ufw allow 53,443/tcp
+      when: ansible_distribution == "Ubuntu"
+
+    - name: Allow port 53 and 443 (UDP)
+      command: ufw allow 53,443/udp
+      when: ansible_distribution == "Ubuntu"
+      
+    - name: Copy project files to remote
+      copy:
+        src: "{{ playbook_dir }}/"
         dest: /srv/infra
+        mode: 0600
       
     - name: Create nginx network
       docker_network:
@@ -105,4 +147,9 @@
     - name: Start nginx
       docker_compose:
         project_src: /srv/infra/nginx
+        state: present
+    
+    - name: Start CoreDNS
+      docker_compose:
+        project_src: /srv/infra/coredns
         state: present

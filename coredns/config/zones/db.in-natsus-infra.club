@@ -1,0 +1,21 @@
+$TTL         1800
+$ORIGIN      in.natsus-infra.club
+in.natsus-infra.club.          IN    SOA    ns1.in-natsus-infra.club. admin.in-natsus-infra.club. (
+                                       1        ; Serial
+                                    1800        ; Refresh
+                                     600        ; Retry
+                                 2419200        ; Expire
+                                    1800 )      ; Negative Cache TTL
+
+; Name Servers - NS records
+@    IN    NS     ns1
+
+; Name Server - A Records
+ns1.in-natsus-infra.club.      IN    A        192.168.178.135
+
+; A Records 
+in-natsus-infra.club.          IN    A        192.168.178.135
+
+; CNAME Records
+gitlab.in-natsus-infra.club.   IN    CNAME    in-natsus-infra.club.
+registry.in-natsus-infra.club. IN    CNAME    in-natsus-infra.club.

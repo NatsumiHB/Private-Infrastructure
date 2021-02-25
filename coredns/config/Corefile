@@ -1,0 +1,9 @@
+.:53 {
+    log
+    errors
+    forward . 1.1.1.1 1.0.0.1
+}
+
+in-natsus-infra.club:53 {
+    file /root/zones/db.in-natsus-infra.club in-natsus-infra.club
+}

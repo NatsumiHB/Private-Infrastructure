@@ -1,0 +1,11 @@
+version: "3"
+
+services:
+  dns:
+    image: coredns/coredns:latest
+    restart: always
+    ports:
+      - 53:53/udp
+    volumes:
+      - ./config:/root/
+    command: -conf /root/Corefile
